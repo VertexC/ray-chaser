@@ -1,7 +1,7 @@
 #include "sphere.h"
 #include <stdlib.h>
 #include <math.h>
-
+#include <iostream>
 /**********************************************************************
  * This function intersects a ray with a given sphere 'sph'. You should
  * use the parametric representation of a line and do the intersection.
@@ -20,6 +20,8 @@ float intersect_sphere(Point o, Vector u, Spheres *sph, Point *hit)
     solve the equation system above, get k1, k2.
     P = O + min(k1,k2)u 
   */
+  std::cout << "???" << std::endl;
+
   float A = vec_dot(u, u);
   Vector SO = get_vec(sph->center, o);
   float B = 2.0 * vec_dot(SO, u);
@@ -31,19 +33,21 @@ float intersect_sphere(Point o, Vector u, Spheres *sph, Point *hit)
     // no intersection
     return -1.0;
   }
+  std::cout << "????" << std::endl;
 
   float k1 = (-B + sqrt(delta)) / (2 * A);
   float k2 = (-B - sqrt(delta)) / (2 * B);
   // ? what if o inside the sphere
   Vector ku = Vector{u.x * k2, u.y * k2, u.z * k2};
   // set hit
-  if (hit)
+  std::cout << "?" << std::endl;
+  if (hit != NULL)
   {
     hit->x = ku.x + o.x;
     hit->y = ku.y + o.y;
     hit->z = ku.z + o.z;
   }
-
+  std::cout << "??" << std::endl;
   // calculate the distance
   return vec_len(ku);
 }
@@ -58,20 +62,33 @@ Spheres *intersect_scene(Point o, Vector u, Spheres *sph, Point *hit)
 {
   // for every sph, find the closet distance of intersection
   Spheres *closest = NULL;
-  Sphere *ptr = sph;
+  Spheres *ptr = sph;
   float min_distance = 10000000.0;
-  while (ptr)
+  std::cout << "!" << std::endl;
+
+  while (ptr != NULL)
   {
     float distance = intersect_sphere(o, u, ptr, NULL);
-    if (distance > min_distance)
+    if (distance > 0.0)
     {
-      min_distance = distance;
-      closest = ptr;
+      if (distance < min_distance)
+      {
+        min_distance = distance;
+        closest = ptr;
+      }
     }
+
     ptr = ptr->next;
   }
+  std::cout << "!!" << std::endl;
+
   // set the hit
-  intersect_scene(o, u, closest, hit);
+  if (closest != NULL)
+  {
+    intersect_sphere(o, u, closest, hit);
+  }
+  std::cout << "!!!" << std::endl;
+
   return closest;
 }
 
