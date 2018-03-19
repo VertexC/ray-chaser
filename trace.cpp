@@ -95,20 +95,18 @@ RGB_float recursive_ray_trace(Point eye_pos, Vector ray)
 {
   RGB_float color;
   // get the intersection point and sphere
-  Point * point = new Point;
-  std::cout << "here" << std::endl;
-  Spheres * sphere = intersect_scene(eye_pos, ray, scene, point);
-  std::cout << "here--" << std::endl;
-  
-  if(sphere != NULL){
+  Point *point = new Point;
+  Spheres *sphere = intersect_scene(eye_pos, ray, scene, point);
+
+  if (sphere != NULL)
+  {
     Vector view = get_vec(*point, eye_pos);
     normalize(&view);
     Vector surf_norm = sphere_normal(*point, sphere);
 
     color = phong(eye_pos, view, surf_norm, sphere);
   }
-  std::cout << "here---" << std::endl;
-  
+
   return color;
 }
 

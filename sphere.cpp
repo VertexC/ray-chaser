@@ -20,7 +20,6 @@ float intersect_sphere(Point o, Vector u, Spheres *sph, Point *hit)
     solve the equation system above, get k1, k2.
     P = O + min(k1,k2)u 
   */
-  std::cout << "???" << std::endl;
 
   float A = vec_dot(u, u);
   Vector SO = get_vec(sph->center, o);
@@ -33,21 +32,18 @@ float intersect_sphere(Point o, Vector u, Spheres *sph, Point *hit)
     // no intersection
     return -1.0;
   }
-  std::cout << "????" << std::endl;
 
   float k1 = (-B + sqrt(delta)) / (2 * A);
   float k2 = (-B - sqrt(delta)) / (2 * B);
   // ? what if o inside the sphere
   Vector ku = Vector{u.x * k2, u.y * k2, u.z * k2};
   // set hit
-  std::cout << "?" << std::endl;
   if (hit != NULL)
   {
     hit->x = ku.x + o.x;
     hit->y = ku.y + o.y;
     hit->z = ku.z + o.z;
   }
-  std::cout << "??" << std::endl;
   // calculate the distance
   return vec_len(ku);
 }
@@ -64,12 +60,11 @@ Spheres *intersect_scene(Point o, Vector u, Spheres *sph, Point *hit)
   Spheres *closest = NULL;
   Spheres *ptr = sph;
   float min_distance = 10000000.0;
-  std::cout << "!" << std::endl;
 
   while (ptr != NULL)
   {
     float distance = intersect_sphere(o, u, ptr, NULL);
-    if (distance > 0.0)
+    if (distance > 0)
     {
       if (distance < min_distance)
       {
@@ -80,14 +75,12 @@ Spheres *intersect_scene(Point o, Vector u, Spheres *sph, Point *hit)
 
     ptr = ptr->next;
   }
-  std::cout << "!!" << std::endl;
 
   // set the hit
   if (closest != NULL)
   {
     intersect_sphere(o, u, closest, hit);
   }
-  std::cout << "!!!" << std::endl;
 
   return closest;
 }
