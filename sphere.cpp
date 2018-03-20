@@ -55,8 +55,6 @@ float intersect_sphere(Point o, Vector u, Spheres *sph, Point *hit)
  **********************************************************************/
 bool check_sphere_shadow(Point o, Vector u, Spheres *sph)
 {
-  std::cout << "u:" << u.x << " " << u.y << " " << u.z << std::endl;
-  std::cout << "o:" << o.x << " " << o.y << " " << o.z << std::endl;
   Spheres *ptr = sph;
   while (ptr != NULL)
   {
@@ -66,23 +64,13 @@ bool check_sphere_shadow(Point o, Vector u, Spheres *sph)
     float B = 2.0 * vec_dot(SO, u);
     float C = vec_dot(SO, SO) - pow(ptr->radius, 2);
 
-    // std::cout << "ABC" << A << " " << B << " " << C << std::endl;
     float delta = pow(B, 2) - 4 * A * C;
 
     float k1 = (-B + sqrt(delta)) / (2 * A);
     float k2 = (-B - sqrt(delta)) / (2 * A);
-    // std::cout << " " << delta << " " << k1 << " " << k2 << std::endl;
 
-    if (delta > 0 && B < -1.0)
-    {
-      // std::cout << "ABC" << A << " " << B << " " << C << std::endl;
-      // std::cout << delta << " " << k1 << " " << k2 << std::endl;
-    }
     if (delta > 0 && k1 > 0.001 && k2 > 0.001)
     {
-      // intersection
-      std::cout << " " << delta << " " << k1 << " " << k2 << std::endl;
-
       return true;
     }
     ptr = ptr->next;

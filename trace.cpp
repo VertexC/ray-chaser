@@ -63,13 +63,12 @@ RGB_float phong(Point q, Vector v, Vector surf_norm, Spheres *sph)
   float distance = vec_len(l);
   normalize(&l);
 
-  if (shadow_on && check_sphere_shadow(q, l, sph))
+  if (shadow_on && check_sphere_shadow(q, l, scene))
   {
     // shadow ray
     RGB_float color = {ga.r + la.r,
                        ga.g + la.g,
                        ga.b + la.b};
-    std::cout << "shadow!" << std::endl;
     return color;
   }
   else
