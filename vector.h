@@ -1,6 +1,8 @@
 /**************************************************************************
  * This header provides you data types and functions to handle vectors
  ************************************************************************/
+#ifndef _VECTOR_H__
+#define _VECTOR_H__
 typedef struct {
   float x;
   float y;
@@ -30,3 +32,4 @@ void normalize(Vector *);
 Vector vec_scale(Vector, float);
 RGB_float clr_add(RGB_float, RGB_float);
 RGB_float clr_scale(RGB_float, float);
+# endif

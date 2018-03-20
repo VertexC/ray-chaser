@@ -80,7 +80,10 @@ int step_max = 1;
 // a flag to indicate whether you want to have shadows
 int shadow_on = 0;
 int reflect_on = 0;
-
+int board_on = 0;
+int refract_on = 0;
+int diffuse_on = 0;
+int super_on = 0;
 // OpenGL
 const int NumPoints = 6;
 
@@ -228,8 +231,16 @@ int main(int argc, char **argv)
 	{
 		if (strcmp(argv[i], "+s") == 0)
 			shadow_on = 1;
-		if(strcmp(argv[i], "l") == 0)
+		if(strcmp(argv[i], "+l") == 0)
 			reflect_on = 1;
+		if(strcmp(argv[i], "+c") == 0)
+			board_on = 1;
+		if(strcmp(argv[i], "+r") == 0)
+			refract_on = 1;
+		if(strcmp(argv[i], "+f") == 0)
+			diffuse_on = 1;
+		if(strcmp(argv[i], "+p") == 0)
+			super_on = 1;
 	}
 
 	//
