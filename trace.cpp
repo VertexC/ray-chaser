@@ -37,6 +37,7 @@ extern float decay_b;
 extern float decay_c;
 
 extern int shadow_on;
+extern int reflect_on;
 extern int step_max;
 
 /////////////////////////////////////////////////////////////////////
@@ -111,7 +112,7 @@ RGB_float phong(Point q, Vector v, Vector surf_norm, Spheres *sph)
  * This is the recursive ray tracer - you need to implement this!
  * You should decide what arguments to use.
  ************************************************************************/
-RGB_float recursive_ray_trace(Point eye_pos, Vector ray)
+RGB_float recursive_ray_trace(Point eye_pos, Vector ray, int step)
 {
   RGB_float color = background_clr;
   // get the intersection point and sphere
@@ -123,8 +124,25 @@ RGB_float recursive_ray_trace(Point eye_pos, Vector ray)
     Vector view = get_vec(*point, eye_pos);
     normalize(&view);
     Vector surf_norm = sphere_normal(*point, sphere);
-
     color = phong(*point, view, surf_norm, sphere);
+
+    if (step > 0)
+    {
+      // calculate the reflected ray
+      float theta = vec_dot(view, surf_norm);
+      if (theta < 0)
+        theta = 0;
+      Vector reflect_view = {
+          2 * theta * surf_norm.x - view.x,
+          2 * theta * surf_norm.y - view.y,
+          2 * theta * surf_norm.z - view.z,
+      };
+      normalize(&reflect_view);
+      RGB_float reflect_color = recursive_ray_trace(*point, reflect_view, step - 1);
+      reflect_color = clr_scale(reflect_color, sphere->reflectance);
+
+      color = clr_add(color, reflect_color);
+    }
   }
 
   return color;
@@ -163,7 +181,7 @@ void ray_trace()
       //
       // You need to change this!!!
       //
-      ret_color = recursive_ray_trace(eye_pos, ray);
+      ret_color = recursive_ray_trace(eye_pos, ray, step_max);
       // ret_color = background_clr; // just background for now
 
       // Parallel rays can be cast instead using below
