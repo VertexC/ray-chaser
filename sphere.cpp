@@ -34,7 +34,7 @@ float intersect_sphere(Point o, Vector u, Spheres *sph, Point *hit)
   }
 
   float k1 = (-B + sqrt(delta)) / (2 * A);
-  float k2 = (-B - sqrt(delta)) / (2 * B);
+  float k2 = (-B - sqrt(delta)) / (2 * A);
   // ? what if o inside the sphere
   Vector ku = Vector{u.x * k2, u.y * k2, u.z * k2};
   // set hit

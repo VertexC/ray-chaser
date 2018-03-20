@@ -65,8 +65,14 @@ RGB_float phong(Point q, Vector v, Vector surf_norm, Spheres *sph)
 
   // parameter for diffuse and specular
   float decay = decay_a + decay_b * distance + decay_c * pow(distance, 2);
+  decay = 1.0;
   float nl = vec_dot(surf_norm, l);
-  float rv = vec_dot(surf_norm, v);
+  Vector r = Vector{
+      2.0 * vec_dot(surf_norm, l) * surf_norm.x - l.x,
+      2.0 * vec_dot(surf_norm, l) * surf_norm.y - l.y,
+      2.0 * vec_dot(surf_norm, l) * surf_norm.z - l.z};
+  normalize(&r);
+  float rv = vec_dot(r, v);
   float rvN = pow(rv, sph->mat_shineness);
 
   // diffuse
@@ -93,7 +99,7 @@ RGB_float phong(Point q, Vector v, Vector surf_norm, Spheres *sph)
  ************************************************************************/
 RGB_float recursive_ray_trace(Point eye_pos, Vector ray)
 {
-  RGB_float color;
+  RGB_float color = background_clr;
   // get the intersection point and sphere
   Point *point = new Point;
   Spheres *sphere = intersect_scene(eye_pos, ray, scene, point);
@@ -104,7 +110,7 @@ RGB_float recursive_ray_trace(Point eye_pos, Vector ray)
     normalize(&view);
     Vector surf_norm = sphere_normal(*point, sphere);
 
-    color = phong(eye_pos, view, surf_norm, sphere);
+    color = phong(*point, view, surf_norm, sphere);
   }
 
   return color;
