@@ -63,34 +63,49 @@ RGB_float phong(Point q, Vector v, Vector surf_norm, Spheres *sph)
   float distance = vec_len(l);
   normalize(&l);
 
-  // parameter for diffuse and specular
-  float decay = decay_a + decay_b * distance + decay_c * pow(distance, 2);
-  decay = 1.0;
-  float nl = vec_dot(surf_norm, l);
-  Vector r = Vector{
-      2.0 * vec_dot(surf_norm, l) * surf_norm.x - l.x,
-      2.0 * vec_dot(surf_norm, l) * surf_norm.y - l.y,
-      2.0 * vec_dot(surf_norm, l) * surf_norm.z - l.z};
-  normalize(&r);
-  float rv = vec_dot(r, v);
-  float rvN = pow(rv, sph->mat_shineness);
+  if (shadow_on && check_sphere_shadow(q, l, sph))
+  {
+    // shadow ray
+    RGB_float color = {ga.r + la.r,
+                       ga.g + la.g,
+                       ga.b + la.b};
+    std::cout << "shadow!" << std::endl;
+    return color;
+  }
+  else
+  {
+    // parameter for diffuse and specular
+    float decay = decay_a + decay_b * distance + decay_c * pow(distance, 2);
+    decay = 1.0;
+    float nl = vec_dot(surf_norm, l);
+    float theta = vec_dot(surf_norm, l);
+    if (theta < 0)
+      theta = 0;
+    Vector r = Vector{
+        2.0 * theta * surf_norm.x - l.x,
+        2.0 * theta * surf_norm.y - l.y,
+        2.0 * theta * surf_norm.z - l.z};
+    normalize(&r);
+    float rv = vec_dot(r, v);
+    float rvN = pow(rv, sph->mat_shineness);
 
-  // diffuse
-  RGB_float diffuse = {light1_diffuse[0] * sph->mat_diffuse[0] * nl / decay,
-                       light1_diffuse[1] * sph->mat_diffuse[1] * nl / decay,
-                       light1_diffuse[2] * sph->mat_diffuse[2] * nl / decay};
+    // diffuse
+    RGB_float diffuse = {light1_diffuse[0] * sph->mat_diffuse[0] * nl / decay,
+                         light1_diffuse[1] * sph->mat_diffuse[1] * nl / decay,
+                         light1_diffuse[2] * sph->mat_diffuse[2] * nl / decay};
 
-  // specular
-  RGB_float specular = {
-      light1_specular[0] * sph->mat_specular[0] * rvN / decay,
-      light1_specular[1] * sph->mat_specular[1] * rvN / decay,
-      light1_specular[2] * sph->mat_specular[2] * rvN / decay};
+    // specular
+    RGB_float specular = {
+        light1_specular[0] * sph->mat_specular[0] * rvN / decay,
+        light1_specular[1] * sph->mat_specular[1] * rvN / decay,
+        light1_specular[2] * sph->mat_specular[2] * rvN / decay};
 
-  RGB_float color = {ga.r + la.r + diffuse.r + specular.r,
-                     ga.g + la.g + diffuse.g + specular.g,
-                     ga.b + la.b + diffuse.b + specular.b};
+    RGB_float color = {ga.r + la.r + diffuse.r + specular.r,
+                       ga.g + la.g + diffuse.g + specular.g,
+                       ga.b + la.b + diffuse.b + specular.b};
 
-  return color;
+    return color;
+  }
 }
 
 /************************************************************************
