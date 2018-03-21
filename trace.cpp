@@ -237,7 +237,7 @@ RGB_float recursive_ray_trace(Point eye_pos, Vector ray, int step)
 
       if (shadow_on && check_sphere_shadow(*board_point, l, scene))
       {
-        color = clr_scale(color, 0);
+        color = clr_scale(color, 0.0);
       }
     }
   }
@@ -265,6 +265,17 @@ RGB_float recursive_ray_trace(Point eye_pos, Vector ray, int step)
       reflect_color = clr_scale(reflect_color, sphere->reflectance);
 
       color = clr_add(color, reflect_color);
+    }
+
+    if (step > 0 && refract_on){
+      Point * refract_point = new Point;
+      // std::cout << "1" << std::endl;
+      Vector refract_view = refracted_out_sphere(*sphere_point, view, sphere, refract_point);
+      // std::cout << "2" << std::endl;      
+      RGB_float refract_color = recursive_ray_trace(*refract_point, refract_view, step - 1);
+      refract_color = clr_scale(refract_color, 0.10);
+      // std::cout << refract_color.r << " " << refract_color.g << " " << refract_color.b << std::endl;
+      color = clr_add(color, refract_color);
     }
   }
 

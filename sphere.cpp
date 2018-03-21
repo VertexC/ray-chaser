@@ -12,7 +12,7 @@
  * If there is an intersection, the point of intersection should be
  * stored in the "hit" variable
  **********************************************************************/
-float intersect_sphere(Point o, Vector u, Spheres *sph, Point *hit)
+float intersect_sphere(Point o, Vector u, Spheres *sph, Point *hit, bool far = false)
 {
   /*
     (1)P = O + ku
@@ -27,7 +27,7 @@ float intersect_sphere(Point o, Vector u, Spheres *sph, Point *hit)
   float C = vec_dot(SO, SO) - pow(sph->radius, 2);
 
   float delta = pow(B, 2) - 4 * A * C;
-  if (delta < 0)
+  if (delta < 0.1)
   {
     // no intersection
     return -1.0;
@@ -36,13 +36,23 @@ float intersect_sphere(Point o, Vector u, Spheres *sph, Point *hit)
   float k1 = (-B + sqrt(delta)) / (2 * A);
   float k2 = (-B - sqrt(delta)) / (2 * A);
 
-  if (k2 < 0){
+  if (k2 < -0.001)
+  {
     return -1.0;
   }
   // ? what if o inside the sphere
   // if (k2 < 0.01)
   // std::cout << k2 << std::endl;
-  Vector ku = Vector{u.x * k2, u.y * k2, u.z * k2};
+  Vector ku;
+  if (far)
+  {
+    ku = Vector{u.x * k1, u.y * k1, u.z * k1};
+  }
+  else
+  {
+    ku = Vector{u.x * k2, u.y * k2, u.z * k2};
+  }
+
   // set hit
   if (hit != NULL)
   {
@@ -119,6 +129,63 @@ Spheres *intersect_scene(Point o, Vector u, Spheres *sph, Point *hit)
   return closest;
 }
 
+/*********************************************************************
+ * This function is to get the refracted ray out of sphere
+ **********************************************************************/
+Vector refracted_out_sphere(Point p, Vector v, Spheres *sphere, Point *refract_point)
+{
+  Vector refracted_in = refract_sphere(p, v, sphere);
+  normalize(&refracted_in);
+  // std::cout << "3" << std::endl;
+  Point *out_p = new Point;
+
+  intersect_sphere(p, refracted_in, sphere, out_p, true);
+  // std::cout << "4" << std::endl;
+
+  Vector refracted_out = refract_sphere(*out_p, vec_scale(refracted_in, -1), sphere);
+  normalize(&refracted_out);
+  // std::cout << "5" << std::endl;
+  refract_point->x = out_p->x;
+  refract_point->y = out_p->y;
+  refract_point->z = out_p->z;
+  return refracted_out;
+}
+
+/*********************************************************************
+ * A internal function for refraction.
+ **********************************************************************/
+Vector refract_sphere(Point p, Vector v, Spheres *sphere)
+{
+  // std::cout << "11" << std::endl;
+
+  Vector n = sphere_normal(p, sphere);
+  // std::cout << "10" << std::endl;
+
+  float r = 1.0f / sphere->refraction;
+  // std::cout << "6" << std::endl;
+
+  if (vec_dot(n, v) > 0.0)
+  {
+    // the refracted ray is tobe inside sphere
+    // r = 1.0f / sphere->refraction;
+  }
+  else
+  {
+    // the refracted ray is tobe outof sphere
+    // r = sphere->refraction;
+    n = vec_scale(n, -1);
+  }
+
+  float delta = 1.0 - pow(r, 2) * (1 - pow(vec_dot(v, n), 2));
+  // std::cout << "7" << std::endl;
+
+  Vector refracted_v = vec_minus(vec_scale(n, vec_dot(n, v) - sqrt(delta)), v);
+  normalize(&refracted_v);
+  // std::cout << "8" << std::endl;
+
+  return refracted_v;
+}
+
 /*****************************************************
  * This function adds a sphere into the sphere list
  *
@@ -126,7 +193,7 @@ Spheres *intersect_scene(Point o, Vector u, Spheres *sph, Point *hit)
  *****************************************************/
 Spheres *add_sphere(Spheres *slist, Point ctr, float rad, float amb[],
                     float dif[], float spe[], float shine,
-                    float refl, int sindex)
+                    float refr, float refl, int sindex)
 {
   Spheres *new_sphere;
 
@@ -145,6 +212,7 @@ Spheres *add_sphere(Spheres *slist, Point ctr, float rad, float amb[],
   (new_sphere->mat_specular)[2] = spe[2];
   new_sphere->mat_shineness = shine;
   new_sphere->reflectance = refl;
+  new_sphere->refraction = refr;
   new_sphere->next = NULL;
 
   if (slist == NULL)
