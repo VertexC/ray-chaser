@@ -35,6 +35,10 @@ float intersect_sphere(Point o, Vector u, Spheres *sph, Point *hit)
 
   float k1 = (-B + sqrt(delta)) / (2 * A);
   float k2 = (-B - sqrt(delta)) / (2 * A);
+
+  if (k1 < 0.1 && k2 < 0.1){
+    return -1.0;
+  }
   // ? what if o inside the sphere
   // if (k2 < 0.01)
   // std::cout << k2 << std::endl;
@@ -69,7 +73,7 @@ bool check_sphere_shadow(Point o, Vector u, Spheres *sph)
     float k1 = (-B + sqrt(delta)) / (2 * A);
     float k2 = (-B - sqrt(delta)) / (2 * A);
 
-    if (delta > 0 && k1 > 0.001 && k2 > 0.001)
+    if (delta > 0 && k1 > 0.1 && k2 > 0.1)
     {
       return true;
     }

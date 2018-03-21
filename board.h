@@ -8,7 +8,7 @@
 const int grid_row = 6;
 const int grid_col = 8;
 const int grid_len = 3;
-const Point corner = {-10, -7, -25};
+const Point corner = {-10, -2.5, -15};
 
 bool intersect_board(Point eye_pos, Vector ray, Point *hit);
 bool check_in_board(Point point);
@@ -23,7 +23,7 @@ bool intersect_board(Point eye_pos, Vector ray, Point *hit)
                         eye_pos.y + k * ray.y,
                         eye_pos.z + k * ray.z};
     // std::cout << point.x << " " << point.y << " " << point.z << std::endl;
-    if (k > 0 && check_in_board(point))
+    if (k > 0.1f && check_in_board(point))
     {
         // set hit
         hit->x = point.x;
@@ -47,11 +47,11 @@ RGB_float color_board(Point point)
 {
     if ((int((point.x - corner.x) / grid_len) + int((point.z - corner.z) / grid_len)) % 2 == 0)
     {
-        return RGB_float{0.8, 0.9, 0.7};
+        return RGB_float{1.0, 1.0, 1.0};
     }
     else
     {
-        return RGB_float{0.3, 0.2, 0.1};
+        return RGB_float{0.0, 0.0, 0.0};
     }
 }
 

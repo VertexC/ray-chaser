@@ -83,14 +83,17 @@ RGB_float phong(Point q, Vector v, Vector surf_norm, Spheres *sph)
     float decay = decay_a + decay_b * distance + decay_c * pow(distance, 2);
     decay = 1.0;
     float nl = vec_dot(surf_norm, l);
+
     float theta = vec_dot(surf_norm, l);
     if (theta < 0)
       theta = 0;
+
     Vector r = Vector{
         2.0 * theta * surf_norm.x - l.x,
         2.0 * theta * surf_norm.y - l.y,
         2.0 * theta * surf_norm.z - l.z};
     normalize(&r);
+
     float rv = vec_dot(r, v);
     float rvN = pow(rv, sph->mat_shineness);
 
@@ -113,6 +116,84 @@ RGB_float phong(Point q, Vector v, Vector surf_norm, Spheres *sph)
   }
 }
 
+
+RGB_float phong1(Point Intersect_point, Vector View_v, Vector surf_norm, Spheres *sph)
+{
+
+  RGB_float C = {0, 0, 0}; //initialize
+
+  // Phong's local illumination model
+  // illumination = Global_ambient + ambient + (decay * diffiuse) + (decay * specular)
+  // C = (1/(a+bd+cd^2)) * (Id * Kd *(n*l)) + (1/(a+bd+cd^2)) * (Is * Ks *(r*v)^N)
+  // A = Iga * Kga + Ia * Ka
+  // I = C + A
+
+  // turn p and light1 into vector l
+  Vector l = get_vec(Intersect_point, light1);
+  // d is the distance between the light source and the point on the object
+  float d = vec_len(l);
+
+  normalize(&l);
+
+  // 1/(a+bd+cd^2)
+  float abcd = 1 / (decay_a + decay_b * d + decay_c * pow(d, 2));
+
+  // Diffuse with attenuation
+  // (1/(a+bd+cd^2)) * (Id * Kd *(n*l))
+  float nl = vec_dot(surf_norm, l); // (n*l)
+  C.r += abcd * (light1_diffuse[0] * sph->mat_diffuse[0] * nl);
+  C.g += abcd * (light1_diffuse[1] * sph->mat_diffuse[1] * nl);
+  C.b += abcd * (light1_diffuse[2] * sph->mat_diffuse[2] * nl);
+
+  // / get refected ray r
+  float angle = vec_dot(surf_norm, l);
+  if (angle < 0)
+    angle = 0;
+  Vector r = vec_minus(vec_scale(surf_norm, 2 * angle), l);
+  normalize(&r);
+
+  // N is the shininess parameter for the object
+  int N = sph->mat_shineness;
+
+  // compute (r*v)^N
+  float rv = vec_dot(r, View_v);
+  float rvn = pow(rv, N);
+
+  // Specular with attenuation
+  // (1/(a+bd+cd^2)) * (Is * Ks *(r*v)^N)
+  C.r += abcd * (light1_specular[0] * sph->mat_specular[0] * rvn);
+  C.g += abcd * (light1_specular[1] * sph->mat_specular[1] * rvn);
+  C.b += abcd * (light1_specular[2] * sph->mat_specular[2] * rvn);
+
+  RGB_float A = {0, 0, 0};
+
+  // Global ambient: Iga * Kga
+  // Apply thevalues contained in the global ambient array to the sphere
+  A.r += global_ambient[0] * sph->reflectance;
+  A.g += global_ambient[1] * sph->reflectance;
+  A.b += global_ambient[2] * sph->reflectance;
+
+  // Ambient: Ia * Ka
+  A.r += light1_ambient[0] * sph->mat_ambient[0];
+  A.g += light1_ambient[1] * sph->mat_ambient[1];
+  A.b += light1_ambient[2] * sph->mat_ambient[2];
+
+  C.r += A.r;
+  C.g += A.g;
+  C.b += A.b;
+
+  // Check if shadows are enabled
+  // if so, change I to A
+  if (shadow_on && check_sphere_shadow(Intersect_point, l, scene))
+  {
+    // C = A;
+    C = clr_scale(C, 0);
+  }
+  // otherwise I is C
+
+  return C;
+}
+
 /************************************************************************
  * This is the recursive ray tracer - you need to implement this!
  * You should decide what arguments to use.
@@ -128,7 +209,6 @@ RGB_float recursive_ray_trace(Point eye_pos, Vector ray, int step)
 
   if (board_on)
   {
-    // std::cout << "chess_on" << std::endl;
     if (intersect_board(eye_pos, ray, board_point))
     {
       color = color_board(*board_point);
@@ -167,7 +247,7 @@ RGB_float recursive_ray_trace(Point eye_pos, Vector ray, int step)
     Vector view = get_vec(*sphere_point, eye_pos);
     normalize(&view);
     Vector surf_norm = sphere_normal(*sphere_point, sphere);
-    color = phong(*sphere_point, view, surf_norm, sphere);
+    color = phong1(*sphere_point, view, surf_norm, sphere);
 
     if (step > 0 && reflect_on)
     {
@@ -220,10 +300,7 @@ void ray_trace()
     for (j = 0; j < win_width; j++)
     {
       ray = get_vec(eye_pos, cur_pixel_pos);
-
-      //
-      // You need to change this!!!
-      //
+      normalize(&ray);
       ret_color = recursive_ray_trace(eye_pos, ray, step_max);
       // ret_color = background_clr; // just background for now
 
