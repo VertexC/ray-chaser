@@ -1,4 +1,5 @@
-#define WIN_WIDTH 1000
-#define WIN_HEIGHT 1000
+#define WIN_WIDTH 512
+#define WIN_HEIGHT 512
 
 #define IMAGE_WIDTH 5.0
+#define STOCHASTIC_RAYS 5

@@ -36,7 +36,7 @@ float intersect_sphere(Point o, Vector u, Spheres *sph, Point *hit)
   float k1 = (-B + sqrt(delta)) / (2 * A);
   float k2 = (-B - sqrt(delta)) / (2 * A);
 
-  if (k1 < 0.1 && k2 < 0.1){
+  if (k2 < 0){
     return -1.0;
   }
   // ? what if o inside the sphere
