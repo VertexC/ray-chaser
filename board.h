@@ -5,10 +5,10 @@
 #define _BOARD_H__
 #include "vector.h"
 #include <iostream>
-const int grid_row = 6;
-const int grid_col = 8;
-const int grid_len = 3;
-const Point corner = {-10, -2.5, -15};
+const int grid_row = 20;
+const int grid_col = 16;
+const int grid_len = 1.5;
+const Point corner = {-7, -2.5, -12};
 
 bool intersect_board(Point eye_pos, Vector ray, Point *hit);
 bool check_in_board(Point point);

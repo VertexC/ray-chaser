@@ -235,7 +235,7 @@ RGB_float recursive_ray_trace(Point eye_pos, Vector ray, int step)
       {
 
         RGB_float reflect_color = recursive_ray_trace(*board_point, reflect_view, step - 1);
-        reflect_color = clr_scale(reflect_color, 0.32);
+        reflect_color = clr_scale(reflect_color, 1);
 
         color = clr_add(color, reflect_color);
       }
@@ -255,15 +255,17 @@ RGB_float recursive_ray_trace(Point eye_pos, Vector ray, int step)
             diffuse_view = vec_scale(diffuse_view, -1);
           }
           RGB_float diffuse_color = recursive_ray_trace(*board_point, diffuse_view, step - 1);
-          diffuse_color = clr_scale(diffuse_color, 0.05);
+          diffuse_color = clr_scale(diffuse_color, 0.3);
           color = clr_add(color, diffuse_color);
         }
       }
 
       if (shadow_on && check_sphere_shadow(*board_point, l, scene))
       {
-        color = clr_scale(color, 0.0);
+        color = clr_scale(color, 0.3);
       }
+
+      color = clr_scale(color, 0.3);
     }
   }
 
@@ -317,7 +319,7 @@ RGB_float recursive_ray_trace(Point eye_pos, Vector ray, int step)
           diffuse_view = vec_scale(diffuse_view, -1);
         }
         RGB_float diffuse_color = recursive_ray_trace(*sphere_point, diffuse_view, step - 1);
-        diffuse_color = clr_scale(diffuse_color, 0.05);
+        diffuse_color = clr_scale(diffuse_color, 0.1);
         color = clr_add(color, diffuse_color);
       }
     }
