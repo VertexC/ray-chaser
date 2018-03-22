@@ -58,6 +58,9 @@ float image_plane = -2;			 // image plane position
 // list of spheres in the scene
 Spheres *scene = NULL;
 
+// number of stochastic rays
+int stochastic_count = STOCHASTIC_COUNT;
+
 // light 1 position and color
 Point light1;
 float light1_ambient[3];
@@ -82,7 +85,7 @@ int shadow_on = 0;
 int reflect_on = 0;
 int board_on = 0;
 int refract_on = 0;
-int diffuse_on = 0;
+int stochastic_on = 0;
 int super_on = 0;
 // OpenGL
 const int NumPoints = 6;
@@ -238,7 +241,7 @@ int main(int argc, char **argv)
 		if(strcmp(argv[i], "+r") == 0)
 			refract_on = 1;
 		if(strcmp(argv[i], "+f") == 0)
-			diffuse_on = 1;
+			stochastic_on = 1;
 		if(strcmp(argv[i], "+p") == 0)
 			super_on = 1;
 	}

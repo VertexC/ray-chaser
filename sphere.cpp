@@ -27,7 +27,7 @@ float intersect_sphere(Point o, Vector u, Spheres *sph, Point *hit, bool far = f
   float C = vec_dot(SO, SO) - pow(sph->radius, 2);
 
   float delta = pow(B, 2) - 4 * A * C;
-  if (delta < 0.1)
+  if (delta < 0.01)
   {
     // no intersection
     return -1.0;

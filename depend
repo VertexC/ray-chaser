@@ -247,7 +247,7 @@ trace.o: trace.cpp /usr/include/stdc-predef.h /usr/include/stdio.h \
  /usr/include/c++/5/bits/locale_facets.tcc \
  /usr/include/c++/5/bits/basic_ios.tcc \
  /usr/include/c++/5/bits/ostream.tcc /usr/include/c++/5/istream \
- /usr/include/c++/5/bits/istream.tcc
+ /usr/include/c++/5/bits/istream.tcc /usr/include/c++/5/cstdlib
 raycast.o: raycast.cpp /usr/include/stdc-predef.h include/Angel.h \
  /usr/include/c++/5/cmath \
  /usr/include/x86_64-linux-gnu/c++/5/bits/c++config.h \

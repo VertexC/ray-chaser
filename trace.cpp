@@ -5,6 +5,7 @@
 #include "sphere.h"
 #include "board.h"
 #include <iostream>
+#include <cstdlib>
 //
 // Global variables
 //
@@ -15,6 +16,8 @@ extern GLfloat frame[WIN_HEIGHT][WIN_WIDTH][3];
 
 extern float image_width;
 extern float image_height;
+
+extern int stochastic_count;
 
 extern Point eye_pos;
 extern float image_plane;
@@ -42,7 +45,7 @@ extern int reflect_on;
 extern int board_on;
 extern int step_max;
 extern int refract_on;
-extern int diffuse_on;
+extern int stochastic_on;
 extern int super_on;
 
 /////////////////////////////////////////////////////////////////////
@@ -115,7 +118,6 @@ RGB_float phong(Point q, Vector v, Vector surf_norm, Spheres *sph)
     return color;
   }
 }
-
 
 RGB_float phong1(Point Intersect_point, Vector View_v, Vector surf_norm, Spheres *sph)
 {
@@ -213,26 +215,49 @@ RGB_float recursive_ray_trace(Point eye_pos, Vector ray, int step)
     {
       color = color_board(*board_point);
       Vector l = get_vec(*board_point, light1);
+
+      Vector view = get_vec(*board_point, eye_pos);
+      normalize(&view);
+      Vector surf_norm = norm_board(*board_point);
+
+      float theta = vec_dot(view, surf_norm);
+      if (theta < 0)
+      {
+        theta = 0;
+      }
+      Vector reflect_view = {
+          2 * theta * surf_norm.x - view.x,
+          2 * theta * surf_norm.y - view.y,
+          2 * theta * surf_norm.z - view.z};
+      normalize(&reflect_view);
+
       if (step > 0 && reflect_on)
       {
-        Vector view = get_vec(*board_point, eye_pos);
-        normalize(&view);
-        Vector surf_norm = norm_board(*board_point);
 
-        float theta = vec_dot(view, surf_norm);
-        if (theta < 0)
-        {
-          theta = 0;
-        }
-        Vector reflect_view = {
-            2 * theta * surf_norm.x - view.x,
-            2 * theta * surf_norm.y - view.y,
-            2 * theta * surf_norm.z - view.z};
-        normalize(&reflect_view);
         RGB_float reflect_color = recursive_ray_trace(*board_point, reflect_view, step - 1);
         reflect_color = clr_scale(reflect_color, 0.32);
-        
+
         color = clr_add(color, reflect_color);
+      }
+
+      if (step > 0 && stochastic_on)
+      {
+        // randomly generated 5 rays
+        for (int i = 0; i < stochastic_count; i++)
+        {
+          Vector diffuse_view = {
+              ((float)rand() / (RAND_MAX)) * 2.0 + -1.0,
+              ((float)rand() / (RAND_MAX)) * 2.0 + -1.0,
+              ((float)rand() / (RAND_MAX)) * 2.0 + -1.0};
+          normalize(&diffuse_view);
+          if (vec_dot(diffuse_view, surf_norm) < 0)
+          {
+            diffuse_view = vec_scale(diffuse_view, -1);
+          }
+          RGB_float diffuse_color = recursive_ray_trace(*board_point, diffuse_view, step - 1);
+          diffuse_color = clr_scale(diffuse_color, 0.05);
+          color = clr_add(color, diffuse_color);
+        }
       }
 
       if (shadow_on && check_sphere_shadow(*board_point, l, scene))
@@ -267,13 +292,44 @@ RGB_float recursive_ray_trace(Point eye_pos, Vector ray, int step)
       color = clr_add(color, reflect_color);
     }
 
-    if (step > 0 && refract_on){
-      Point * refract_point = new Point;
+    if (step > 0 && stochastic_on)
+    {
+      // calculate the reflected ray
+      float theta = vec_dot(view, surf_norm);
+      if (theta < 0)
+        theta = 0;
+      Vector reflect_view = {
+          2 * theta * surf_norm.x - view.x,
+          2 * theta * surf_norm.y - view.y,
+          2 * theta * surf_norm.z - view.z,
+      };
+      normalize(&reflect_view);
+      // randomly generated 5 rays
+      for (int i = 0; i < stochastic_count; i++)
+      {
+        Vector diffuse_view = {
+            ((float)rand() / (RAND_MAX)) * 2.0 + -1.0,
+            ((float)rand() / (RAND_MAX)) * 2.0 + -1.0,
+            ((float)rand() / (RAND_MAX)) * 2.0 + -1.0};
+        normalize(&diffuse_view);
+        if (vec_dot(diffuse_view, surf_norm) < 0)
+        {
+          diffuse_view = vec_scale(diffuse_view, -1);
+        }
+        RGB_float diffuse_color = recursive_ray_trace(*sphere_point, diffuse_view, step - 1);
+        diffuse_color = clr_scale(diffuse_color, 0.05);
+        color = clr_add(color, diffuse_color);
+      }
+    }
+
+    if (step > 0 && refract_on)
+    {
+      Point *refract_point = new Point;
       // std::cout << "1" << std::endl;
       Vector refract_view = refracted_out_sphere(*sphere_point, view, sphere, refract_point);
-      // std::cout << "2" << std::endl;      
+      // std::cout << "2" << std::endl;
       RGB_float refract_color = recursive_ray_trace(*refract_point, refract_view, step - 1);
-      refract_color = clr_scale(refract_color, 0.10);
+      refract_color = clr_scale(refract_color, 0.32);
       // std::cout << refract_color.r << " " << refract_color.g << " " << refract_color.b << std::endl;
       color = clr_add(color, refract_color);
     }
