@@ -31,7 +31,7 @@ specification:
 - ./raycast -d 1 +s +l 
 <img src=".\screen_shot\default.bmp" width="40%">
 
-- ./raycast -d 0 +s +c
+- ./raycast -d 0 +c
 <img src=".\screen_shot\shiny_board.bmp" width="40%">
 
 - ./raycast -d 1 +s +l +r +c
