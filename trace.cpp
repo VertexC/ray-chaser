@@ -85,7 +85,7 @@ RGB_float phong(Point q, Vector v, Vector surf_norm, Spheres *sph)
     // parameter for diffuse and specular
     float decay = decay_a + decay_b * distance + decay_c * pow(distance, 2);
     decay = 1.0;
-    float nl = vec_dot(surf_norm, l);
+    float nl = vec_dot(surf_norm, l) > 0 ? vec_dot(surf_norm, l) : 0;
 
     float theta = vec_dot(surf_norm, l);
 
@@ -117,6 +117,66 @@ RGB_float phong(Point q, Vector v, Vector surf_norm, Spheres *sph)
   }
 }
 
+/*********************************************************************
+ * Phong illumination - for board
+ *********************************************************************/
+RGB_float phong_board(Point q, Vector v, Vector surf_norm)
+{
+  // I = global_ambient + local_ambient + f_decay(diffuse + specular)
+  float reflectance = 0.32;
+  int mat_shineness = 1;
+  float mat_ambient[3] = {0.2, 0.2, 0.2};
+  float mat_diffuse[3] = {0.5, 0.5, 0.5};
+  float mat_specular[3] = {3, 3, 3};
+
+  // global ambient
+  RGB_float ga = {global_ambient[0] * reflectance,
+                  global_ambient[1] * reflectance,
+                  global_ambient[2] * reflectance};
+  // local ambient
+  RGB_float la = {light1_ambient[0] * mat_ambient[0],
+                  light1_ambient[1] * mat_ambient[1],
+                  light1_ambient[2] * mat_ambient[2]};
+
+  // vector to light
+  Vector l = get_vec(q, light1);
+  float distance = vec_len(l);
+  normalize(&l);
+
+  // parameter for diffuse and specular
+  float decay = decay_a + decay_b * distance + decay_c * pow(distance, 2);
+  decay = 1.0;
+  float nl = vec_dot(surf_norm, l) > 0 ? vec_dot(surf_norm, l) : 0;
+
+  float theta = vec_dot(surf_norm, l);
+
+  Vector r = Vector{
+      2.0 * theta * surf_norm.x - l.x,
+      2.0 * theta * surf_norm.y - l.y,
+      2.0 * theta * surf_norm.z - l.z};
+  normalize(&r);
+
+  float rv = vec_dot(r, v) > 0 ? vec_dot(r, v) : 0;
+  float rvN = pow(rv, mat_shineness);
+
+  // diffuse
+  RGB_float diffuse = {light1_diffuse[0] * mat_diffuse[0] * nl / decay,
+                       light1_diffuse[1] * mat_diffuse[1] * nl / decay,
+                       light1_diffuse[2] * mat_diffuse[2] * nl / decay};
+
+  // specular
+  RGB_float specular = {
+      light1_specular[0] * mat_specular[0] * rvN / decay,
+      light1_specular[1] * mat_specular[1] * rvN / decay,
+      light1_specular[2] * mat_specular[2] * rvN / decay};
+
+  RGB_float color = {ga.r + la.r + diffuse.r + specular.r,
+                     ga.g + la.g + diffuse.g + specular.g,
+                     ga.b + la.b + diffuse.b + specular.b};
+
+  return color;
+}
+
 /************************************************************************
  * This is the recursive ray tracer - you need to implement this!
  * You should decide what arguments to use.
@@ -129,17 +189,19 @@ RGB_float recursive_ray_trace(Point eye_pos, Vector ray, int step)
   Spheres *sphere = intersect_scene(eye_pos, ray, scene, sphere_point);
 
   Point *board_point = new Point;
-
   if (board_on)
   {
     if (intersect_board(eye_pos, ray, board_point))
     {
       color = color_board(*board_point);
+      color = clr_scale(color, 3.0);
       Vector l = get_vec(*board_point, light1);
 
       Vector view = get_vec(*board_point, eye_pos);
       normalize(&view);
       Vector surf_norm = norm_board(*board_point);
+      // local phong
+      color = clr_add(color, phong_board(*board_point, view, surf_norm));
 
       float theta = vec_dot(view, surf_norm);
       // if (theta < 0)
@@ -176,7 +238,7 @@ RGB_float recursive_ray_trace(Point eye_pos, Vector ray, int step)
             diffuse_view = vec_scale(diffuse_view, -1);
           }
           RGB_float diffuse_color = recursive_ray_trace(*board_point, diffuse_view, step - 1);
-          diffuse_color = clr_scale(diffuse_color, 0.4);
+          diffuse_color = clr_scale(diffuse_color, 0.5);
           color = clr_add(color, diffuse_color);
         }
       }
@@ -240,7 +302,7 @@ RGB_float recursive_ray_trace(Point eye_pos, Vector ray, int step)
           diffuse_view = vec_scale(diffuse_view, -1);
         }
         RGB_float diffuse_color = recursive_ray_trace(*sphere_point, diffuse_view, step - 1);
-        diffuse_color = clr_scale(diffuse_color, 0.3);
+        diffuse_color = clr_scale(diffuse_color, 0.05);
         color = clr_add(color, diffuse_color);
       }
     }
