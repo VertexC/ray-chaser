@@ -1,3 +1,13 @@
-shadow light: cast ray form intersection point to light, if intersect any object, then blocked as shadow
-reflect light:
-  2.0 * (surf_norm * l) surf_norm - l,
+### Ray-chaser
+
+#### buil guide
+```bash
+make
+./raycast [-u|-d] 
+```
+
+#### Technique used
+- phong illumination
+- shadow
+- reflection
+- 

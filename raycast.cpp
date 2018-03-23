@@ -220,7 +220,8 @@ int main(int argc, char **argv)
 
 	if (strcmp(argv[1], "-u") == 0)
 	{ // user defined scene
-		set_up_user_scene();
+		// set_up_user_scene();
+		set_up_default_scene();
 	}
 	else
 	{ // default scene
