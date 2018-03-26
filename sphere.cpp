@@ -156,34 +156,61 @@ Vector refracted_out_sphere(Point p, Vector v, Spheres *sphere, Point *refract_p
  **********************************************************************/
 Vector refract_sphere(Point p, Vector v, Spheres *sphere)
 {
-  // std::cout << "11" << std::endl;
+  // // std::cout << "11" << std::endl;
 
-  Vector n = sphere_normal(p, sphere);
-  // std::cout << "10" << std::endl;
+  // Vector n = sphere_normal(p, sphere);
+  // // std::cout << "10" << std::endl;
 
-  float r = 1.0f / sphere->refraction;
-  // std::cout << "6" << std::endl;
+  // float r = 1.0f / sphere->refraction;
+  // // std::cout << "6" << std::endl;
 
-  if (vec_dot(n, v) > 0.0)
+  // if (vec_dot(n, v) > 0.0)
+  // {
+  //   // the refracted ray is tobe inside sphere
+  //   // r = 1.0f / sphere->refraction;
+  // }
+  // else
+  // {
+  //   // the refracted ray is tobe outof sphere
+  //   // r = sphere->refraction;
+  //   n = vec_scale(n, -1);
+  // }
+
+  // float delta = 1.0 - pow(r, 2) * (1 - pow(vec_dot(v, n), 2));
+  // // std::cout << "7" << std::endl;
+
+  // Vector refracted_v = vec_minus(vec_scale(n, vec_dot(n, v) - sqrt(delta)), v);
+  // normalize(&refracted_v);
+  // // std::cout << "8" << std::endl;
+
+  // return refracted_v;
+
+  Vector outRay;
+  normalize(&v);
+  Vector surf_norm = sphere_normal(p, sphere);
+  float r1;
+  float r2;
+  if (vec_dot(v, surf_norm) > 0)
   {
-    // the refracted ray is tobe inside sphere
-    // r = 1.0f / sphere->refraction;
+    // into object
+    r1 = 1.0;
+    r2 = 1.5;
   }
   else
   {
-    // the refracted ray is tobe outof sphere
-    // r = sphere->refraction;
-    n = vec_scale(n, -1);
+    // outside object
+    surf_norm = vec_scale(surf_norm, -1);
+    r1 = 1.5;
+    r2 = 1.0;
   }
 
-  float delta = 1.0 - pow(r, 2) * (1 - pow(vec_dot(v, n), 2));
-  // std::cout << "7" << std::endl;
+  float ratio = r1 / r2;
 
-  Vector refracted_v = vec_minus(vec_scale(n, vec_dot(n, v) - sqrt(delta)), v);
-  normalize(&refracted_v);
-  // std::cout << "8" << std::endl;
+  float delta = 1 - pow(ratio, 2) * (1 - pow(vec_dot(v, surf_norm), 2));
 
-  return refracted_v;
+  outRay = vec_minus(vec_scale(surf_norm, ratio * vec_dot(v, surf_norm) - sqrt(delta)), vec_scale(v, ratio));
+  normalize(&outRay);
+  return outRay;
 }
 
 /*****************************************************
