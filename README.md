@@ -43,6 +43,9 @@ specification:
 - ./raycast -d 1 +s +l +r +c +f +p
 <img src=".\screen_shot\shiny_supersampling.bmp" width="40%">
 
+#### reference
+(refraction ray equation)[https://physics.stackexchange.com/questions/159929/what-does-the-equation-of-a-refracted-ray-trace-mean]
+
 #### Tricks
 
 ##### creepy green shadow
