@@ -29,19 +29,19 @@ specification:
 #### screen shot
 
 - ./raycast -d 1 +s +l 
-<img src=".\screen_shot\default.bmp" width="40%">
+<img src=".\default.bmp" width="40%">
 
-- ./raycast -d 0 +c
-<img src=".\screen_shot\shiny_board.bmp" width="40%">
+- ./raycast -d 1 +c +s +r 
+<img src=".\screen_shot\d_1_csr.png" width="40%">
 
-- ./raycast -d 1 +s +l +r +c
-<img src=".\screen_shot\mine.bmp" width="40%">
+- ./raycast -d 4 +c +s +r +l
+<img src=".\screen_shot\d_4_csrl.png" width="40%">
 
-- ./raycast -d 1 +s +l +r +c +f
-<img src=".\screen_shot\shiny_diffuse_reflection.bmp" width="40%">
+- ./raycast -d 4 +c +s +r +l +f
+<img src=".\screen_shot\d_4_csrlf.png" width="40%">
 
-- ./raycast -d 1 +s +l +r +c +f +p
-<img src=".\screen_shot\shiny_supersampling.bmp" width="40%">
+- ./raycast -d 4 +c +s +r +l +f +p
+<img src=".\screen_shot\d_4_csrlfp.png" width="40%">
 
 #### Tricks
 

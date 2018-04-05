@@ -8,7 +8,7 @@
 const int grid_row = 20;
 const int grid_col = 16;
 const int grid_len = 1.5;
-const Point corner = {-7, -2.0, -12};
+const Point corner = {-7, -2.5, -12};
 
 bool intersect_board(Point eye_pos, Vector ray, Point *hit);
 bool check_in_board(Point point);

@@ -314,7 +314,7 @@ RGB_float recursive_ray_trace(Point eye_pos, Vector ray, int step)
       Vector refract_view = refracted_out_sphere(*sphere_point, view, sphere, refract_point);
       // std::cout << "2" << std::endl;
       RGB_float refract_color = recursive_ray_trace(*refract_point, refract_view, step - 1);
-      refract_color = clr_scale(refract_color, 0.32);
+      refract_color = clr_scale(refract_color, 1.0);
       // std::cout << refract_color.r << " " << refract_color.g << " " << refract_color.b << std::endl;
       color = clr_add(color, refract_color);
     }
