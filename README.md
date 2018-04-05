@@ -44,7 +44,7 @@ specification:
 <img src=".\screen_shot\d_4_csrlfp.png" width="40%">
 
 #### reference
-(refraction ray equation)[https://physics.stackexchange.com/questions/159929/what-does-the-equation-of-a-refracted-ray-trace-mean]
+[refraction ray equation](https://physics.stackexchange.com/questions/159929/what-does-the-equation-of-a-refracted-ray-trace-mean)
 
 #### Tricks
 
